@@ -2,6 +2,26 @@
 include "src/gb.i"
 
 
+; ram
+section "ram", wram0
+sprite_table: ds 4*60
+
+
+; graphics
+bgr: macro
+  dw (\1<<10)|(\2<<5)|\3
+  endm
+
+section "gfx", romx
+gfx: incbin "src/gfx.2bpp"
+end_gfx:
+
+palette:
+  bgr 0, 0, 0
+  bgr 0, 0, 0
+  bgr 0, 31, 0
+  bgr 31, 31, 31
+   
 ; a bunch of empty vectors, why not?
 
 section "vbi", rom0[$40]
@@ -53,6 +73,8 @@ setup:
   di ; no interrupts
   ld sp, $fffe ; set up stack
   
+  cp $11
+  jp nz,no_gbc
   
   ; the ram could have stuff in it.
   ; so let's clear it all out
@@ -83,6 +105,28 @@ setup:
   call clear_oam
   call clear_screen
     
+  ; load the gfx
+  ld hl, _VRAM
+  ld bc,end_gfx-gfx
+  ld de,gfx
+  
+.gfx_l: call wait_vblank
+  ld a,[de] ; get byte
+  ldi [hl],a ; store byte
+  inc de ; next byte
+  
+  dec bc
+  ld a,c
+  or b
+  jr nz,.gfx_l ; bc isn't zero
+  
+  ; now the palette
+  ld hl,palette
+  call set_palette
+  
+  ld hl,$9800
+  ld a,1
+  ld [hl],a
   
   call lcd_on
 
@@ -90,4 +134,11 @@ setup:
   ld [rIE],a ; vblanks on
   
   ei
-.end: jr .end
+  
+.end: halt
+  jr .end
+
+
+section "no_gbc", rom0
+no_gbc: ; do nothing
+  jr no_gbc

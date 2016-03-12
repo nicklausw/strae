@@ -12,7 +12,7 @@ OFILES = $(subst .s,.o,$(SFILES))
 
 $(OUT): $(OFILES)
 	$(LD) -t -n $(SYM) -o $(OUT) $(OFILES)
-	$(FIX) -v -c -t "STRAE" $(OUT)
+	$(FIX) -v -l 0x33 -k FF -C -t "STRAE" $(OUT)
 	$(EMU) $(OUT) >/dev/null 2>&1
 
 src/%.o: src/%.s $(MUSIC_O)
