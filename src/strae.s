@@ -4,9 +4,10 @@ include "src/gb.i"
 
 ; ram
 section "ram", wram0
-sprite_table: ds 4*60
+player_y: db
+player_x: db
+player_tile: db
 controller:: db
-flow_type:: db
 
 
 ; graphics
@@ -51,14 +52,7 @@ vblank_routine:
   push bc
   
   call get_controller
-  
-  ld a,[flow_type]
-  cp 1
-  jr nz,no_hl
-  
-  jp [hl]
-  
-no_hl:
+
   pop bc
   pop de
   pop af
@@ -137,30 +131,68 @@ setup:
   ld hl,palette
   call set_palette
   
-  ld hl,_SCRN0
+  ld hl,palette
+  call set_obj_palette
+  
   ld a,1
-  ld [hl],a
+  ld [player_tile],a
+  
+  ld a,$50
+  ld [player_x],a
+  ld [player_y],a
   
   call lcd_on
 
   ld a, IEF_VBLANK
   ld [rIE],a ; vblanks on
   
-  ld a,1
-  ld [flow_type],a
-  ld hl,move_func
-  
   ei
   
-.loop:
-  halt
-  jr .loop
+  jp move_func
 
 
 section "move_func", rom0
 move_func:
-  di
-  jp no_hl
+  halt
+  call copy_sprite
+  
+  
+  ld a,[controller]
+  bit PADB_LEFT,a
+  jr nz,.no_left
+  
+  ld a,[player_x]
+  inc a
+  ld [player_x],a
+  
+.no_left:
+  ld a,[controller]
+  bit PADB_RIGHT,a
+  jr nz,.no_right
+  
+  ld a,[player_x]
+  dec a
+  ld [player_x],a
+
+.no_right:
+  jr move_func
+
+
+section "copy_sprite", rom0
+copy_sprite:
+  ld hl,_OAMRAM
+  ld de,player_y
+  ld b,3
+  
+.cs_l:
+  call wait_vblank
+  ld a,[de]
+  ldi [hl],a
+  inc de
+  dec b
+  jr nz,.cs_l
+  
+  ret
 
 
 section "no_gbc", rom0

@@ -5,7 +5,7 @@ FIX = rgbfix
 OUT = strae.gbc
 SYM = strae.sym
 
-EMU = wine ~/dev/gb/bgb/bgb.exe
+EMU = bgb
 
 SFILES = $(wildcard src/*.s)
 OFILES = $(subst .s,.o,$(SFILES))
