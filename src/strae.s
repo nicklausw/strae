@@ -6,6 +6,7 @@ include "src/gb.i"
 section "ram", wram0
 sprite_table: ds 4*60
 controller:: db
+flow_type:: db
 
 
 ; graphics
@@ -48,11 +49,16 @@ vblank_routine:
   push af
   push de
   push bc
-  push hl
   
   call get_controller
   
-  pop hl
+  ld a,[flow_type]
+  cp 1
+  jr nz,no_hl
+  
+  jp [hl]
+  
+no_hl:
   pop bc
   pop de
   pop af
@@ -81,7 +87,7 @@ setup:
   
   ; no sound, no power consumption
   xor a
-  ld [$ff26],a
+  ld [rNR52],a
   
   ; the ram could have stuff in it.
   ; so let's clear it all out
@@ -140,10 +146,21 @@ setup:
   ld a, IEF_VBLANK
   ld [rIE],a ; vblanks on
   
+  ld a,1
+  ld [flow_type],a
+  ld hl,move_func
+  
   ei
   
-.end: halt
-  jr .end
+.loop:
+  halt
+  jr .loop
+
+
+section "move_func", rom0
+move_func:
+  di
+  jp no_hl
 
 
 section "no_gbc", rom0
