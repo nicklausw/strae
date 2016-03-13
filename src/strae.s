@@ -5,6 +5,7 @@ include "src/gb.i"
 ; ram
 section "ram", wram0
 sprite_table: ds 4*60
+controller:: db
 
 
 ; graphics
@@ -49,7 +50,7 @@ vblank_routine:
   push bc
   push hl
   
-  call controller
+  call get_controller
   
   pop hl
   pop bc

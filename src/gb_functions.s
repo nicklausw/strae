@@ -52,9 +52,10 @@ clear_screen::
 
 
 
-section "controller", rom0
-controller::
+section "get_controller", rom0
+get_controller::
   push bc
+  push af
 
   ld a,P1F_5    ; get dpad
   ld [rP1],a
@@ -79,7 +80,10 @@ controller::
   cpl    ; not necessary again?
   and $0f    ; see above
   or b    ; combine with b
-
+  
+  ld [controller],a ; put in ram
+  
+  pop af
   pop bc
   ret
 
