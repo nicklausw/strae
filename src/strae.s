@@ -49,6 +49,8 @@ vblank_routine:
   push bc
   push hl
   
+  call controller
+  
   pop hl
   pop bc
   pop de
@@ -68,13 +70,17 @@ section "reserved", rom0[$104]
 
 
 ; now the real stuff
-section "setup", rom0
+section "setup", rom0[$150]
 setup:
   di ; no interrupts
   ld sp, $fffe ; set up stack
   
   cp $11
   jp nz,no_gbc
+  
+  ; no sound, no power consumption
+  xor a
+  ld [$ff26],a
   
   ; the ram could have stuff in it.
   ; so let's clear it all out
@@ -124,7 +130,7 @@ setup:
   ld hl,palette
   call set_palette
   
-  ld hl,$9800
+  ld hl,_SCRN0
   ld a,1
   ld [hl],a
   
