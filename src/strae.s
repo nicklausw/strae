@@ -145,9 +145,12 @@ setup:
   ld a,1
   ld [player_tile],a
   
-  ld a,$50
+  ld a,8*10
   ld [player_x],a
   ld [player_y],a
+  
+  ld hl,map
+  call load_map
   
   call lcd_on
 
