@@ -2,12 +2,20 @@
 include "src/gb.i"
 
 
+; defines
+jump_up = 1
+jump_down = 2
+jump_height = 20
+
+
 ; ram
 section "ram", wram0
 player_y: db
 player_x: db
 player_tile: db
 controller:: db
+jump: db
+jump_l: db
 
 
 ; graphics
@@ -156,7 +164,21 @@ move_func:
   halt
   call copy_sprite
   
+  ld a,[jump]
+  inc a
+  cp 1
+  jr z,.not_jumping
   
+  call handle_a
+  jr .yes_jumping
+  
+.not_jumping:
+  ld a,[controller]
+  bit PADB_A,a
+  call nz,set_jump
+  
+
+.yes_jumping:
   ld a,[controller]
   bit PADB_LEFT,a
   jr nz,.no_left
@@ -192,6 +214,71 @@ copy_sprite:
   dec b
   jr nz,.cs_l
   
+  ret
+
+
+section "set_jump", rom0
+set_jump:
+  ld a,jump_up
+  ld [jump],a
+  
+  xor a
+  ld [jump_l],a
+  
+  ret
+
+
+section "handle_a", rom0
+handle_a:
+  ld a,[jump]
+  cp jump_up
+  jp z,.handle_up
+  
+  ld a,[jump]
+  cp jump_down
+  jp z,.handle_down
+
+  
+.handle_up:
+  ld a,[jump_l]
+  inc a
+  cp jump_height
+  jr z,.up_done
+  
+  ld [jump_l],a
+  
+  ld a,[player_y]
+  dec a
+  ld [player_y],a
+  
+  ret
+  
+  
+.up_done:
+  ld [jump_l],a
+  
+  ld a,jump_down
+  ld [jump],a
+  ret
+
+  
+.handle_down:
+  ld a,[jump_l]
+  dec a
+  jr z,.down_done
+  
+  ld [jump_l],a
+  
+  ld a,[player_y]
+  inc a
+  ld [player_y],a
+  
+  ret
+  
+.down_done:
+  xor a
+  ld [jump],a
+  ld [jump_l],a
   ret
 
 
