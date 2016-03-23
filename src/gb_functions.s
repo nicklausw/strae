@@ -104,7 +104,7 @@ lcd_off::
   ld hl,rLCDC
   ld a,[rLCDC]
   bit 7,a    ; Is LCD already off?
-  ret z         ; yes, exit
+  jr z,.done         ; yes, exit
 
   ld      a,[rIE]
   push    af
@@ -121,6 +121,8 @@ lcd_off::
   
   pop     af
   ld      [rIE],a   ; Restore the state of vblank interrupt
+
+.done:
   pop hl
   pop af
   ret
