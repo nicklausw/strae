@@ -88,7 +88,7 @@ get_controller::
   ret
 
 
-section "lcd", rom0
+section "lcdstuff", rom0
 lcd_on::
   ; enable LCDC and OBJ sprites
   push hl
@@ -127,53 +127,3 @@ lcd_off::
   pop af
   ret
 
-section "set_palette", rom0
-set_palette::
-  ld a,$80
-  ld [rBCPS],a
-  
-  ld bc,$0869  ; b = 8, c = rBCPD
-
-.loop1:
-
-  di
-
-.loop2:
-  ld a,[rSTAT]
-  and 2
-  jr nz,.loop2
-
-  ld a,[hl+]
-  ld [c],a
-  ei
-
-  dec b
-  jr nz,.loop1
-
-  ret
-
-
-section "set_obj_palette", rom0
-set_obj_palette::
-  ld a,$80
-  ld [rOCPS],a
-  
-  ld bc,$086b  ; b = 8, c = rOCPD
-
-.loop1:
-
-  di
-
-.loop2:
-  ld a,[rSTAT]
-  and 2
-  jr nz,.loop2
-
-  ld a,[hl+]
-  ld [c],a
-  ei
-
-  dec b
-  jr nz,.loop1
-
-  ret

@@ -2,10 +2,10 @@ CC = rgbasm
 LD = rgblink
 FIX = rgbfix
 
-OUT = strae.gbc
+OUT = strae.gb
 SYM = strae.sym
 
-EMU = wine ~/dev/gb/bgb/bgb.exe
+EMU = gambatte_qt
 
 SFILES = $(wildcard src/*.s)
 OFILES = $(subst .s,.o,$(SFILES))
@@ -14,8 +14,8 @@ all: $(OUT)
 	$(EMU) $(OUT) >/dev/null 2>&1
 
 $(OUT): $(OFILES)
-	$(LD) -t -n $(SYM) -o $(OUT) $(OFILES)
-	$(FIX) -v -l 0x33 -k FF -C -t "STRAE" $(OUT)
+	$(LD) -n $(SYM) -o $(OUT) $(OFILES)
+	$(FIX) -v -k FF -t "STRAE" $(OUT)
 
 src/%.o: src/%.s $(MUSIC_O)
 	$(CC) -o $@ $<

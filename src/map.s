@@ -53,9 +53,11 @@ load_map::
   
   pop bc
   
-  ; put it back
-  push hl
-  pop de
+  ; put it back (hl to de)
+  ld a,h
+  ld d,a
+  ld a,l
+  ld e,a
   
   pop hl
   

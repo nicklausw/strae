@@ -27,11 +27,6 @@ section "gfx", romx
 gfx: incbin "src/gfx.2bpp"
 end_gfx:
 
-palette:
-  bgr 0, 0, 0
-  bgr 0, 0, 0
-  bgr 0, 31, 0
-  bgr 31, 31, 31
    
 ; a bunch of empty vectors, why not?
 
@@ -79,13 +74,10 @@ section "reserved", rom0[$104]
 
 
 ; now the real stuff
-section "setup", rom0[$150]
+section "setup", rom0
 setup:
   di ; no interrupts
   ld sp, $fffe ; set up stack
-  
-  cp $11
-  jp nz,no_gbc
   
   ; no sound, no power consumption
   xor a
@@ -136,11 +128,10 @@ setup:
   jr nz,.gfx_l ; bc isn't zero
   
   ; now the palette
-  ld hl,palette
-  call set_palette
-  
-  ld hl,palette
-  call set_obj_palette
+  ld a, %11100100 ; palette: dark to light
+  ld [rBGP], a ; set background palette
+  ldh [rOBP0],a ; Non-DMGs will complain
+  ldh [rOBP1],a ; if you don't do this
   
   ld a,1
   ld [player_tile],a
@@ -284,7 +275,3 @@ handle_a:
   ld [jump_l],a
   ret
 
-
-section "no_gbc", rom0
-no_gbc: ; do nothing
-  jr no_gbc

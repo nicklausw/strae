@@ -1,4 +1,4 @@
 # the classic gitignore
 src/*.o
 strae.sym
-strae.gbc
+strae.gb*
