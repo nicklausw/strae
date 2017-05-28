@@ -7,6 +7,10 @@
 
 include "src/gb.i"
 
+section "gb_functions.s vars",wram0
+controller:: db
+
+
 ; wait for vblank
 section "wait_vblank", rom0
 wait_vblank::

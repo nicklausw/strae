@@ -5,7 +5,7 @@ include "src/gb.i"
 ; defines
 jump_up = 1
 jump_down = 2
-jump_height = 20
+jump_height = 30
 
 
 ; ram
@@ -13,15 +13,10 @@ section "ram", wram0
 player_y: db
 player_x: db
 player_tile: db
-controller:: db
 jump: db
 jump_l: db
 
 
-; graphics
-bgr: macro
-  dw (\1<<10)|(\2<<5)|\3
-  endm
 
 section "gfx", romx
 gfx: incbin "src/gfx.2bpp"
@@ -178,6 +173,9 @@ move_func:
   jr nz,.no_left
   
   ld a,[player_x]
+  cp 160
+  jr z,.no_left
+
   inc a
   ld [player_x],a
   
@@ -187,6 +185,9 @@ move_func:
   jr nz,.no_right
   
   ld a,[player_x]
+  cp $08
+  jr z,.no_right
+
   dec a
   ld [player_x],a
 
